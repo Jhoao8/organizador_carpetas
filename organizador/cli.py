@@ -27,7 +27,7 @@ def main():
     )
     args = parser.parse_args()
 
-    carpeta = Path(args.carpeta)
+    carpeta = Path(args.carpeta).resolve()
     if not carpeta.is_dir():
         print(f"Error: '{carpeta}' no existe o no es una carpeta.", file=sys.stderr)
         sys.exit(1)

@@ -4,14 +4,18 @@ from pathlib import Path
 from .clasificador import obtener_categoria
 
 
-def organizar(carpeta):
-    """Mueve los archivos de una carpeta a subcarpetas según su categoría."""
+def organizar(carpeta, reglas):
+    """Mueve los archivos de una carpeta a subcarpetas según su categoría.
+
+    Recibe la carpeta y las reglas de clasificación, y devuelve un diccionario
+    con la cantidad de archivos movidos por categoría.
+    """
     carpeta = Path(carpeta)
     resumen = {}
     archivos = [ruta for ruta in carpeta.iterdir() if ruta.is_file()]
 
     for archivo in archivos:
-        categoria = obtener_categoria(archivo.name)
+        categoria = obtener_categoria(archivo.name, reglas)
         destino = carpeta / categoria
         archivo_destino = destino / archivo.name
 

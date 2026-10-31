@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from .movedor import organizar
+from .configuracion import cargar_reglas
 
 
 def main():
@@ -16,7 +17,8 @@ def main():
         print(f"Error: '{carpeta}' no existe o no es una carpeta.", file=sys.stderr)
         sys.exit(1)
 
-    resumen = organizar(carpeta)
+    reglas = cargar_reglas()
+    resumen = organizar(carpeta, reglas)
 
     if not resumen:
         print("No había archivos para organizar.")

@@ -4,6 +4,15 @@ from pathlib import Path
 from .clasificador import obtener_categoria
 
 
+def _ruta_sin_conflicto(ruta):
+    """Devuelve una ruta libre: si ya existe, agrega ' (1)', ' (2)'... antes de la extensión."""
+    contador = 1
+    nueva_ruta = ruta
+    while nueva_ruta.exists():
+        nueva_ruta = ruta.with_name(f"{ruta.stem} ({contador}){ruta.suffix}")
+        contador += 1
+    return nueva_ruta
+
 def organizar(carpeta, reglas):
     """Mueve los archivos de una carpeta a subcarpetas según su categoría.
 
@@ -19,10 +28,8 @@ def organizar(carpeta, reglas):
         destino = carpeta / categoria
         archivo_destino = destino / archivo.name
 
-        if archivo_destino.exists():
-            continue
-
         destino.mkdir(exist_ok=True)
+        archivo_destino = _ruta_sin_conflicto(destino / archivo.name)
         shutil.move(archivo, archivo_destino)
         resumen[categoria] = resumen.get(categoria, 0) + 1
 

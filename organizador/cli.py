@@ -45,25 +45,39 @@ def main():
         carpeta, args.simular, args.reglas or "por defecto",
     )
 
-    movimientos = organizar(carpeta, reglas, simular=args.simular)
+    movimientos, errores = organizar(carpeta, reglas, simular=args.simular)
 
-    logger.info("FIN: %d archivos procesados", len(movimientos))
+    logger.info(
+        "FIN: %d archivos procesados, %d errores", len(movimientos), len(errores)
+    )
 
-    if not movimientos:
+    if not movimientos and not errores:
         print("No había archivos para organizar.")
         return
-    
-    if args.simular:
-        print("SIMULACIÓN: no se movió ningún archivo.")
-        for origen, destino in movimientos:
-            print(f"{origen.name} -> {destino.relative_to(carpeta)}")
 
-    por_categoria = Counter(destino.parent.name for _, destino in movimientos)
-    for categoria, cantidad in por_categoria.items():
-        print(f"{categoria}: {cantidad}")
-    print(f"Total: {len(movimientos)}")
+    if movimientos:
+        if args.simular:
+            print("SIMULACIÓN: no se movió ningún archivo.")
+            for origen, destino in movimientos:
+                print(f"{origen.name} -> {destino.relative_to(carpeta)}")
+
+        por_categoria = Counter(destino.parent.name for _, destino in movimientos)
+        for categoria, cantidad in por_categoria.items():
+            print(f"{categoria}: {cantidad}")
+        print(f"Total: {len(movimientos)}")
+
+    if errores:
+        print(
+            f"Atención: {len(errores)} archivo(s) no se pudieron mover:",
+            file=sys.stderr,
+        )
+        for archivo, motivo in errores:
+            print(f"  {archivo.name}: {motivo}", file=sys.stderr)
+
     print(f"Registro: {ruta_log}")
 
+    if errores:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

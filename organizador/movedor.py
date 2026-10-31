@@ -1,7 +1,10 @@
+import logging
 import shutil
 from pathlib import Path
 
 from .clasificador import obtener_categoria
+
+logger = logging.getLogger("organizador")
 
 
 def _ruta_sin_conflicto(ruta):
@@ -32,6 +35,9 @@ def organizar(carpeta, reglas, simular=False):
         if not simular:
             destino.mkdir(exist_ok=True)
             shutil.move(archivo, archivo_destino)
+            logger.info("MOVIDO: %s -> %s", archivo, archivo_destino)
+        else:
+            logger.info("SIMULADO: %s -> %s", archivo, archivo_destino)
 
         movimientos.append((archivo, archivo_destino))
 

@@ -1,10 +1,12 @@
 import argparse
+import logging
 import sys
 from collections import Counter
 from pathlib import Path
 
 from .configuracion import cargar_reglas
 from .movedor import organizar
+from .registro import configurar_log
 
 
 def main():
@@ -36,7 +38,16 @@ def main():
         print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)
 
+    ruta_log = configurar_log()
+    logger = logging.getLogger("organizador")
+    logger.info(
+        "INICIO: carpeta=%s simular=%s reglas=%s",
+        carpeta, args.simular, args.reglas or "por defecto",
+    )
+
     movimientos = organizar(carpeta, reglas, simular=args.simular)
+
+    logger.info("FIN: %d archivos procesados", len(movimientos))
 
     if not movimientos:
         print("No había archivos para organizar.")
@@ -51,6 +62,7 @@ def main():
     for categoria, cantidad in por_categoria.items():
         print(f"{categoria}: {cantidad}")
     print(f"Total: {len(movimientos)}")
+    print(f"Registro: {ruta_log}")
 
 
 if __name__ == "__main__":

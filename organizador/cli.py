@@ -1,5 +1,6 @@
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 
 from .configuracion import cargar_reglas
@@ -17,6 +18,11 @@ def main():
         help="Ruta de un archivo JSON con reglas propias. "
         "Si no se indica, se usan las reglas por defecto.",
     )
+    parser.add_argument(
+        "--simular",
+        action="store_true",
+        help="Muestra qué se haría sin mover ningún archivo."
+    )
     args = parser.parse_args()
 
     carpeta = Path(args.carpeta)
@@ -30,14 +36,21 @@ def main():
         print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)
 
-    resumen = organizar(carpeta, reglas)
+    movimientos = organizar(carpeta, reglas, simular=args.simular)
 
-    if not resumen:
+    if not movimientos:
         print("No había archivos para organizar.")
-    else:
-        for categoria, cantidad in resumen.items():
-            print(f"{categoria}: {cantidad}")
-        print(f"Total: {sum(resumen.values())}")
+        return
+    
+    if args.simular:
+        print("SIMULACIÓN: no se movió ningún archivo.")
+        for origen, destino in movimientos:
+            print(f"{origen.name} -> {destino.relative_to(carpeta)}")
+
+    por_categoria = Counter(destino.parent.name for _, destino in movimientos)
+    for categoria, cantidad in por_categoria.items():
+        print(f"{categoria}: {cantidad}")
+    print(f"Total: {len(movimientos)}")
 
 
 if __name__ == "__main__":

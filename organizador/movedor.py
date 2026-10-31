@@ -13,24 +13,26 @@ def _ruta_sin_conflicto(ruta):
         contador += 1
     return nueva_ruta
 
-def organizar(carpeta, reglas):
+def organizar(carpeta, reglas, simular=False):
     """Mueve los archivos de una carpeta a subcarpetas según su categoría.
 
-    Recibe la carpeta y las reglas de clasificación, y devuelve un diccionario
-    con la cantidad de archivos movidos por categoría.
+    Recibe la carpeta y las reglas de clasificación. Con simular=True no mueve
+    nada, solo calcula los movimientos. Devuelve una lista de tuplas
+    (origen, destino) con cada movimiento realizado o simulado.
     """
     carpeta = Path(carpeta)
-    resumen = {}
+    movimientos = []
     archivos = [ruta for ruta in carpeta.iterdir() if ruta.is_file()]
 
     for archivo in archivos:
         categoria = obtener_categoria(archivo.name, reglas)
         destino = carpeta / categoria
-        archivo_destino = destino / archivo.name
-
-        destino.mkdir(exist_ok=True)
         archivo_destino = _ruta_sin_conflicto(destino / archivo.name)
-        shutil.move(archivo, archivo_destino)
-        resumen[categoria] = resumen.get(categoria, 0) + 1
 
-    return resumen
+        if not simular:
+            destino.mkdir(exist_ok=True)
+            shutil.move(archivo, archivo_destino)
+
+        movimientos.append((archivo, archivo_destino))
+
+    return movimientos
